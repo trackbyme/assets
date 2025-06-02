@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css" />
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map_a23f19c69ca296f8abb6fbca700cca57 {
+            position: relative; 
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+        }
+
+        .leaflet-container {
+            font-size: 1rem;
+        }
+    </style>
+    <script>L_NO_TOUCH = false;
+        L_DISABLE_3D = false;</script>
+</head>
+<body>
+    <div class="folium-map" id="map_a23f19c69ca296f8abb6fbca700cca57"></div>
+    <button id="reloadMarkers" style="position:absolute;z-index:1000;top:11px;left:50px;">Recarregar Mapa</button>
+    <script>// Recupera centro e zoom salvos antes de criar o mapa
+        var savedLat = localStorage.getItem('mapCenterLat');
+        var savedLng = localStorage.getItem('mapCenterLng');
+        var savedZoom = localStorage.getItem('mapZoom');
+        var initialCenter = [-23.551608, -46.634528];
+        var initialZoom = 8;
+
+        if (savedLat && savedLng) {
+            initialCenter = [Number(savedLat), Number(savedLng)];
+        }
+        if (savedZoom) {
+            initialZoom = Number(savedZoom);
+        }
+
+        var map = L.map("map_a23f19c69ca296f8abb6fbca700cca57", {
+            center: initialCenter,
+            crs: L.CRS.EPSG3857,
+            zoom: initialZoom,
+            zoomControl: true,
+            preferCanvas: false,
+        });
+
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            minZoom: 0,
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            noWrap: false,
+            attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+            subdomains: "abc",
+            detectRetina: false,
+            tms: false,
+            opacity: 1,
+        }).addTo(map);
+
+        // Função para adicionar marcadores
+        var markers = [];
+        function adicionarMarcadores(coordenadas) {
+            // Remove marcadores antigos
+            markers.forEach(function (m) { map.removeLayer(m); });
+            markers = [];
+            coordenadas.forEach(function (coord) {
+                var marker = L.AwesomeMarkers.icon({
+                    icon: 'fa-car',
+                    prefix: 'fa',
+                    markerColor: 'blue',
+                    iconColor: 'white'
+                });
+                var m = L.marker([coord.lat, coord.lng], { icon: marker })
+                    .addTo(map)
+                    .bindPopup(coord.popup);
+                markers.push(m);
+            });
+        }
+
+        // Exemplo de coordenadas (substitua pelo seu backend)
+        var coordenadas = [{"lat":-23.703389,"lng":-46.700051,"popup":"000001"},{"lat":-23.705973,"lng":-46.698055,"popup":"000002"},{"lat":-23.702947,"lng":-46.694439,"popup":"000003"},{"lat":-23.70053,"lng":-46.696993,"popup":"000004"},{"lat":-23.699509,"lng":-46.699353,"popup":"000005"},{"lat":-23.698782,"lng":-46.696929,"popup":"000006"},{"lat":-23.697063,"lng":-46.697755,"popup":"000007"},{"lat":-23.700953,"lng":-46.700598,"popup":"000008"}];
+        adicionarMarcadores(coordenadas);
+
+        // Salva o centro e zoom ao mover ou dar zoom
+        function saveMapState() {
+            var center = map.getCenter();
+            localStorage.setItem('mapCenterLat', center.lat);
+            localStorage.setItem('mapCenterLng', center.lng);
+            localStorage.setItem('mapZoom', map.getZoom());
+        }
+        map.on('moveend', saveMapState);
+        map.on('zoomend', saveMapState);
+
+        // Botão para recarregar mapa inteiro
+        document.getElementById('reloadMarkers').onclick = function () {
+            location.reload();
+        };
+        // Recarrega a página automaticamente a cada 30 segundos (30000 ms)
+        setInterval(function () {
+            location.reload();
+        }, 30000);</script>
+</body>
+</html>
